@@ -58,7 +58,7 @@ CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
     {
         cv.GenerateID(): cv.declare_id(HDMICEC),
         cv.Required(CONF_PIN): pins.internal_gpio_output_pin_schema,
-        cv.Required(CONF_ADDRESS): cv.int_range(min=0, max=15),
+        cv.Required(CONF_ADDRESS): cv.int_range(min=0, max=100),
         cv.Required(CONF_PHYSICAL_ADDRESS): cv.uint16_t,
         cv.Optional(CONF_PROMISCUOUS_MODE, False): cv.boolean,
         cv.Optional(CONF_MONITOR_MODE, False): cv.boolean,
