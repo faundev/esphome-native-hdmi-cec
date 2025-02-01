@@ -30,7 +30,7 @@ def validate_data_array(value):
 def validate_osd_name(value):
     if not isinstance(value, str):
         raise cv.Invalid("Must be a string")
-    if len(value) < 1:
+    if not value:  # Simplified check for empty string
         raise cv.Invalid("Must be a non-empty string")
     if len(value) > 14:
         raise cv.Invalid("Must not be more than 14-characters long")
@@ -58,7 +58,7 @@ CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
     {
         cv.GenerateID(): cv.declare_id(HDMICEC),
         cv.Required(CONF_PIN): pins.internal_gpio_output_pin_schema,
-        cv.Required(CONF_ADDRESS): cv.int_range(min=0, max=100),
+        cv.Required(CONF_ADDRESS): cv.hex_uint8_t, # Changed to accept hex values
         cv.Required(CONF_PHYSICAL_ADDRESS): cv.uint16_t,
         cv.Optional(CONF_PROMISCUOUS_MODE, False): cv.boolean,
         cv.Optional(CONF_MONITOR_MODE, False): cv.boolean,
@@ -66,8 +66,8 @@ CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
         cv.Optional(CONF_ON_MESSAGE): automation.validate_automation(
             {
                 cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(MessageTrigger),
-                cv.Optional(CONF_SOURCE): cv.int_range(min=0, max=100),
-                cv.Optional(CONF_DESTINATION): cv.int_range(min=0, max=100),
+                cv.Optional(CONF_SOURCE): cv.int_range(min=0, max=15),
+                cv.Optional(CONF_DESTINATION): cv.int_range(min=0, max=15),
                 cv.Optional(CONF_OPCODE): cv.uint8_t,
                 cv.Optional(CONF_DATA): validate_data_array
             }
@@ -82,13 +82,13 @@ async def to_code(config):
     cec_pin_ = await cg.gpio_pin_expression(config[CONF_PIN])
     cg.add(var.set_pin(cec_pin_))
 
-    cg.add(var.set_address(config[CONF_ADDRESS]))
+    cg.add(var.set_address(config[CONF_ADDRESS])) # Address is now passed directly
     cg.add(var.set_physical_address(config[CONF_PHYSICAL_ADDRESS]))
     cg.add(var.set_promiscuous_mode(config[CONF_PROMISCUOUS_MODE]))
     cg.add(var.set_monitor_mode(config[CONF_MONITOR_MODE]))
 
-    osd_name_bytes = bytes(config[CONF_OSD_NAME], 'ascii', 'ignore') # convert string to ascii bytes
-    osd_name_bytes = [x for x in osd_name_bytes] # convert byte array to int array
+    osd_name_bytes = bytes(config[CONF_OSD_NAME], 'ascii', 'ignore')
+    osd_name_bytes = [x for x in osd_name_bytes]
     osd_name_bytes = cg.std_vector.template(cg.uint8)(osd_name_bytes)
     cg.add(var.set_osd_name_bytes(osd_name_bytes))
 
@@ -126,8 +126,8 @@ async def to_code(config):
     SendAction,
     {
         cv.GenerateID(CONF_PARENT): cv.use_id(HDMICEC),
-        cv.Optional(CONF_SOURCE): cv.templatable(cv.int_range(min=0, max=100)),
-        cv.Required(CONF_DESTINATION): cv.templatable(cv.int_range(min=0, max=100)),
+        cv.Optional(CONF_SOURCE): cv.templatable(cv.int_range(min=0, max=15)),
+        cv.Required(CONF_DESTINATION): cv.templatable(cv.int_range(min=0, max=15)),
         cv.Required(CONF_DATA): cv.templatable(validate_data_array)
     }
 )
