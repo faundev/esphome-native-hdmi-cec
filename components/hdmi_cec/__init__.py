@@ -6,7 +6,7 @@ from esphome.const import (
     CONF_TRIGGER_ID
 )
 
-CODEOWNERS = ["@Palakis"]
+CODEOWNERS = ["@faundev"]
 
 CONF_PIN = "pin"
 CONF_ADDRESS = "address"
@@ -126,7 +126,7 @@ async def to_code(config):
     SendAction,
     {
         cv.GenerateID(CONF_PARENT): cv.use_id(HDMICEC),
-        cv.Optional(CONF_SOURCE): cv.templatable(cv.int_range(min=0, max=15)),
+        cv.Optional(CONF_SOURCE): cv.templatable(cv.int_range(min=0, max=100)),
         cv.Required(CONF_DESTINATION): cv.templatable(cv.int_range(min=0, max=15)),
         cv.Required(CONF_DATA): cv.templatable(validate_data_array)
     }
