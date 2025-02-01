@@ -66,8 +66,8 @@ CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
         cv.Optional(CONF_ON_MESSAGE): automation.validate_automation(
             {
                 cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(MessageTrigger),
-                cv.Optional(CONF_SOURCE): cv.int_range(min=0, max=15),
-                cv.Optional(CONF_DESTINATION): cv.int_range(min=0, max=15),
+                cv.Optional(CONF_SOURCE): cv.int_range(min=0, max=100),
+                cv.Optional(CONF_DESTINATION): cv.int_range(min=0, max=100),
                 cv.Optional(CONF_OPCODE): cv.uint8_t,
                 cv.Optional(CONF_DATA): validate_data_array
             }
@@ -127,7 +127,7 @@ async def to_code(config):
     {
         cv.GenerateID(CONF_PARENT): cv.use_id(HDMICEC),
         cv.Optional(CONF_SOURCE): cv.templatable(cv.int_range(min=0, max=100)),
-        cv.Required(CONF_DESTINATION): cv.templatable(cv.int_range(min=0, max=15)),
+        cv.Required(CONF_DESTINATION): cv.templatable(cv.int_range(min=0, max=100)),
         cv.Required(CONF_DATA): cv.templatable(validate_data_array)
     }
 )
